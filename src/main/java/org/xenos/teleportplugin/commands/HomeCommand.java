@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
 
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 
 public class HomeCommand implements CommandExecutor, TabCompleter {
 
+    private final TeleportPlugin plugin;
     private final HomeManager homeManager;
 
-    public HomeCommand(HomeManager homeManager) {
+    public HomeCommand(TeleportPlugin plugin, HomeManager homeManager) {
+        this.plugin = plugin;
         this.homeManager = homeManager;
     }
 

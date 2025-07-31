@@ -29,10 +29,10 @@ public class TeleportPlugin extends JavaPlugin {
         getCommand("tpa").setExecutor(new TpaCommand(this, teleportManager));
         getCommand("tpaccept").setExecutor(new TpAcceptCommand(this, teleportManager));
         getCommand("tpdeny").setExecutor(new TpDenyCommand(this, teleportManager));
-        getCommand("tptoggle").setExecutor(new TpToggleCommand(teleportManager)); // No sounds in this one
-        getCommand("tpignore").setExecutor(new TpIgnoreCommand(teleportManager)); // No sounds in this one
+        getCommand("tptoggle").setExecutor(new TpToggleCommand(this, teleportManager));
+        getCommand("tpignore").setExecutor(new TpIgnoreCommand(this, teleportManager));
         getCommand("sethome").setExecutor(new SetHomeCommand(this, homeManager));
-        HomeCommand homeCommand = new HomeCommand(homeManager); // Sounds are in manager
+        HomeCommand homeCommand = new HomeCommand(this, homeManager);
         getCommand("home").setExecutor(homeCommand);
         getCommand("home").setTabCompleter(homeCommand);
         DelHomeCommand delHomeCommand = new DelHomeCommand(this, homeManager);

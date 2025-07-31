@@ -4,14 +4,17 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.TeleportManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
 
 public class TpToggleCommand implements CommandExecutor {
 
+    private final TeleportPlugin plugin;
     private final TeleportManager teleportManager;
 
-    public TpToggleCommand(TeleportManager teleportManager) {
+    public TpToggleCommand(TeleportPlugin plugin, TeleportManager teleportManager) {
+        this.plugin = plugin;
         this.teleportManager = teleportManager;
     }
 
