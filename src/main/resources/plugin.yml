@@ -1,0 +1,33 @@
+name: Xenos-Tpa
+version: '1.0-SNAPSHOT'
+main: org.xenos.teleportplugin.teleportplugin
+api-version: '1.21'
+prefix: Xenos-Core
+load: STARTUP
+authors: [ CreepySxS ]
+description: A test Plugin made by @CatoniSefid
+website: https://mrsourse.ir/
+commands:
+  delhome:
+    description: Delete your home
+  sethome:
+    description: Set your home location
+    usage: /sethome name
+  home:
+    description: Teleport to your home
+    usage: /home name
+  tpa:
+    description: درخواست تلپورت به یک بازیکن
+    usage: /tpa <player>
+  tpaccept:
+    description: قبول کردن درخواست تلپورت
+    usage: /tpaccept
+  tpdeny:
+    description: رد کردن درخواست تلپورت
+    usage: /tpdeny
+  tptoggle:
+    description: فعال/غیرفعال کردن دریافت درخواست تلپورت
+    usage: /tptoggle
+  tpignore:
+    description: نادیده گرفتن بازیکن خاص
+    usage: /tpignore <player>
