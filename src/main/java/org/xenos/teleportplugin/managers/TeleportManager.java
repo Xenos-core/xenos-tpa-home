@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
@@ -89,6 +90,7 @@ public class TeleportManager {
     public void startTpaWarmup(Player from, Player to) {
         UUID uuid = from.getUniqueId();
         MessageUtil.send(from, plugin.getConfig().getString("messages.home-teleport-start", "<yellow>Teleporting in {time} seconds. Don't move or take damage!").replace("{time}", String.valueOf(warmupTicks / 20)));
+        SoundUtil.playSound(from, "warmup-start", plugin);
 
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
@@ -109,6 +111,7 @@ public class TeleportManager {
                     if (from.isOnline()) {
                         from.teleport(to);
                         MessageUtil.send(from, plugin.getConfig().getString("messages.teleport-success", "<green>Teleport successful!"));
+                        SoundUtil.playSound(from, "teleport-success", plugin);
                         from.getWorld().spawnParticle(Particle.END_ROD, to.getLocation(), 60, 1, 1, 1, 0.1);
                         cooldowns.put(uuid, System.currentTimeMillis());
                     }
@@ -128,6 +131,7 @@ public class TeleportManager {
         if (task != null) {
             task.cancel();
             MessageUtil.send(from, plugin.getConfig().getString("messages.home-teleport-cancel", "<red>Teleport canceled."));
+            SoundUtil.playSound(from, "teleport-cancel", plugin);
         }
     }
 

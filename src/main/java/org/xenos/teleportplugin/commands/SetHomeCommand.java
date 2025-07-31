@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 public class SetHomeCommand implements CommandExecutor {
 
@@ -45,6 +46,7 @@ public class SetHomeCommand implements CommandExecutor {
 
         homeManager.setHome(player, homeName);
         MessageUtil.send(player, "<green>Home '<white>" + homeName + "</white>' set successfully!");
+        SoundUtil.playSound(player, "set-home", plugin);
         return true;
     }
 

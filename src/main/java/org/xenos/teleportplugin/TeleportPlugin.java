@@ -26,16 +26,16 @@ public class TeleportPlugin extends JavaPlugin {
         this.homeManager = new HomeManager(this);
 
         // Register commands
-        getCommand("tpa").setExecutor(new TpaCommand(teleportManager));
-        getCommand("tpaccept").setExecutor(new TpAcceptCommand(teleportManager));
-        getCommand("tpdeny").setExecutor(new TpDenyCommand(teleportManager));
-        getCommand("tptoggle").setExecutor(new TpToggleCommand(teleportManager));
-        getCommand("tpignore").setExecutor(new TpIgnoreCommand(teleportManager));
+        getCommand("tpa").setExecutor(new TpaCommand(this, teleportManager));
+        getCommand("tpaccept").setExecutor(new TpAcceptCommand(this, teleportManager));
+        getCommand("tpdeny").setExecutor(new TpDenyCommand(this, teleportManager));
+        getCommand("tptoggle").setExecutor(new TpToggleCommand(teleportManager)); // No sounds in this one
+        getCommand("tpignore").setExecutor(new TpIgnoreCommand(teleportManager)); // No sounds in this one
         getCommand("sethome").setExecutor(new SetHomeCommand(this, homeManager));
-        HomeCommand homeCommand = new HomeCommand(homeManager);
+        HomeCommand homeCommand = new HomeCommand(homeManager); // Sounds are in manager
         getCommand("home").setExecutor(homeCommand);
         getCommand("home").setTabCompleter(homeCommand);
-        DelHomeCommand delHomeCommand = new DelHomeCommand(homeManager);
+        DelHomeCommand delHomeCommand = new DelHomeCommand(this, homeManager);
         getCommand("delhome").setExecutor(delHomeCommand);
         getCommand("delhome").setTabCompleter(delHomeCommand);
         getCommand("homes").setExecutor(new HomesCommand(this, homeManager));

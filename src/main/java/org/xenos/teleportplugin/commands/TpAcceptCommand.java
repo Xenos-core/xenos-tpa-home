@@ -4,14 +4,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.TeleportManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 public class TpAcceptCommand implements CommandExecutor {
 
+    private final TeleportPlugin plugin;
     private final TeleportManager teleportManager;
 
-    public TpAcceptCommand(TeleportManager teleportManager) {
+    public TpAcceptCommand(TeleportPlugin plugin, TeleportManager teleportManager) {
+        this.plugin = plugin;
         this.teleportManager = teleportManager;
     }
 
@@ -55,6 +59,8 @@ public class TpAcceptCommand implements CommandExecutor {
         // Start the warmup
         teleportManager.startTpaWarmup(from, target);
         MessageUtil.send(target, "<green>You accepted " + from.getName() + "'s teleport request.");
+        SoundUtil.playSound(target, "tpa-accept", plugin);
+        SoundUtil.playSound(from, "tpa-accept", plugin);
 
         teleportManager.removeRequest(target);
         return true;

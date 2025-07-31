@@ -5,8 +5,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -14,9 +16,11 @@ import java.util.stream.Collectors;
 
 public class DelHomeCommand implements CommandExecutor, TabCompleter {
 
+    private final TeleportPlugin plugin;
     private final HomeManager homeManager;
 
-    public DelHomeCommand(HomeManager homeManager) {
+    public DelHomeCommand(TeleportPlugin plugin, HomeManager homeManager) {
+        this.plugin = plugin;
         this.homeManager = homeManager;
     }
 
@@ -41,6 +45,7 @@ public class DelHomeCommand implements CommandExecutor, TabCompleter {
 
         homeManager.deleteHome(player, homeName);
         MessageUtil.send(player, "<green>Successfully deleted home '<white>" + homeName + "</white>'.");
+        SoundUtil.playSound(player, "del-home", plugin);
         return true;
     }
 

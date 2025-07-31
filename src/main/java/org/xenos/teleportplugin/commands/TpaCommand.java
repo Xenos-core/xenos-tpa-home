@@ -5,14 +5,18 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.TeleportManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 public class TpaCommand implements CommandExecutor {
 
+    private final TeleportPlugin plugin;
     private final TeleportManager teleportManager;
 
-    public TpaCommand(TeleportManager teleportManager) {
+    public TpaCommand(TeleportPlugin plugin, TeleportManager teleportManager) {
+        this.plugin = plugin;
         this.teleportManager = teleportManager;
     }
 
@@ -53,7 +57,10 @@ public class TpaCommand implements CommandExecutor {
         teleportManager.sendRequest(player, target);
 
         MessageUtil.send(player, "<green>Request sent to <white>" + target.getName() + "</white>!");
+        SoundUtil.playSound(player, "tpa-send", plugin);
+
         MessageUtil.send(target, "<gold><bold>" + player.getName() + "</bold> wants to teleport to you. Use <green>/tpaccept</green> to accept.");
+        SoundUtil.playSound(target, "tpa-receive", plugin);
 
         return true;
     }

@@ -11,6 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 public class HomeGuiListener implements Listener {
 
@@ -36,6 +37,7 @@ public class HomeGuiListener implements Listener {
             return;
         }
 
+        SoundUtil.playSound(player, "gui-click", plugin);
         ItemMeta meta = clickedItem.getItemMeta();
         // Check for sethome button first
         if (meta.getPersistentDataContainer().has(HomeGui.SET_HOME_BUTTON_KEY, PersistentDataType.BYTE)) {
@@ -55,6 +57,7 @@ public class HomeGuiListener implements Listener {
             player.performCommand("home " + homeName);
         } else if (event.getClick() == ClickType.RIGHT) {
             homeManager.deleteHome(player, homeName);
+            SoundUtil.playSound(player, "del-home", plugin);
             // Refresh the GUI
             new HomeGui(plugin, homeManager, player).open();
         }

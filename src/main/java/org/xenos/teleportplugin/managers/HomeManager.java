@@ -4,10 +4,10 @@ import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.xenos.teleportplugin.TeleportPlugin;
 import org.xenos.teleportplugin.utils.MessageUtil;
+import org.xenos.teleportplugin.utils.SoundUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,6 +125,7 @@ public class HomeManager {
 
         warmupQueue.add(uuid);
         MessageUtil.send(player, plugin.getConfig().getString("messages.home-teleport-start", "<yellow>Teleporting in {time} seconds. Don't move or take damage!").replace("{time}", String.valueOf(warmupTicks / 20)));
+        SoundUtil.playSound(player, "warmup-start", plugin);
 
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
@@ -162,11 +163,11 @@ public class HomeManager {
     private void teleportPlayer(Player player, Location home) {
         player.teleport(home);
         MessageUtil.send(player, "<green>You have been teleported to your home!");
+        SoundUtil.playSound(player, "teleport-success", plugin);
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
 
         // افکت هنگام رسیدن
         player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation(), 60, 0.5, 1, 0.5, 0.01);
-        player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
     }
 
     public void cancelWarmup(Player player) {
@@ -179,6 +180,7 @@ public class HomeManager {
                 task.cancel();
             }
             MessageUtil.send(player, "<red>Teleport canceled.");
+            SoundUtil.playSound(player, "teleport-cancel", plugin);
         }
     }
 
