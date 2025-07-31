@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.xenos.teleportplugin.commands.*;
+import org.xenos.teleportplugin.gui.HomeGuiListener;
 import org.xenos.teleportplugin.listeners.WarmupListener;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.managers.TeleportManager;
@@ -30,17 +31,18 @@ public class TeleportPlugin extends JavaPlugin {
         getCommand("tpdeny").setExecutor(new TpDenyCommand(teleportManager));
         getCommand("tptoggle").setExecutor(new TpToggleCommand(teleportManager));
         getCommand("tpignore").setExecutor(new TpIgnoreCommand(teleportManager));
-        getCommand("sethome").setExecutor(new SetHomeCommand(homeManager));
+        getCommand("sethome").setExecutor(new SetHomeCommand(this, homeManager));
         HomeCommand homeCommand = new HomeCommand(homeManager);
         getCommand("home").setExecutor(homeCommand);
         getCommand("home").setTabCompleter(homeCommand);
         DelHomeCommand delHomeCommand = new DelHomeCommand(homeManager);
         getCommand("delhome").setExecutor(delHomeCommand);
         getCommand("delhome").setTabCompleter(delHomeCommand);
-        getCommand("homes").setExecutor(new HomesCommand(homeManager));
+        getCommand("homes").setExecutor(new HomesCommand(this, homeManager));
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new WarmupListener(homeManager, teleportManager), this);
+        getServer().getPluginManager().registerEvents(new HomeGuiListener(this, homeManager), this);
 
         getLogger().info("Xenos-TPA-HOME enabled!");
     }

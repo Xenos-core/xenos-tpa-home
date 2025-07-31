@@ -1,6 +1,12 @@
 # Xenos-Tpa-Home Configuration
+# Developed with love by @CatoniSefid
 
 # Settings for teleportation cooldowns and warmups (all values are in seconds)
+homes:
+  # The default number of homes a player can have.
+  # This can be overridden with permissions like 'xenos.homes.limit.5' or 'xenos.homes.limit.unlimited'.
+  default-limit: 3
+
 teleport:
   tpa:
     warmup: 15
@@ -11,6 +17,7 @@ teleport:
 
 # All messages sent by the plugin. They support MiniMessage formatting.
 # You can find MiniMessage documentation here: https://docs.advntr.dev/minimessage/format.html
+# Config by @CatoniSefid
 messages:
   prefix: "<i><b><gradient:#34213C:#C32ABF:#545eb6>🇽‌🇪‌🇳‌🇴‌🇸‌-🇨‌🇴‌🇷‌🇪‌ >></gradient></b></i> "
 

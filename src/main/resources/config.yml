@@ -2,6 +2,11 @@
 # Developed with love by @CatoniSefid
 
 # Settings for teleportation cooldowns and warmups (all values are in seconds)
+homes:
+  # The default number of homes a player can have.
+  # This can be overridden with permissions like 'xenos.homes.limit.5' or 'xenos.homes.limit.unlimited'.
+  default-limit: 3
+
 teleport:
   tpa:
     warmup: 15
