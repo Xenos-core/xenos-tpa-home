@@ -7,11 +7,13 @@ import org.bukkit.entity.Player;
 import org.xenos.teleportplugin.managers.HomeManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
 
-public class SetHomeCommand implements CommandExecutor {
+import java.util.Set;
+
+public class HomesCommand implements CommandExecutor {
 
     private final HomeManager homeManager;
 
-    public SetHomeCommand(HomeManager homeManager) {
+    public HomesCommand(HomeManager homeManager) {
         this.homeManager = homeManager;
     }
 
@@ -22,19 +24,16 @@ public class SetHomeCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length != 1) {
-            MessageUtil.send(player, "<red>Usage: /sethome <name>");
+        Set<String> homeNames = homeManager.getHomeNames(player);
+
+        if (homeNames.isEmpty()) {
+            MessageUtil.send(player, "<yellow>You have no homes set. Use /sethome <name> to set one.");
             return true;
         }
 
-        String homeName = args[0];
-        if (!homeName.matches("^[a-zA-Z0-9_-]{3,16}$")) {
-            MessageUtil.send(player, "<red>Home name must be 3-16 characters long and can only contain letters, numbers, underscore, and dash.");
-            return true;
-        }
+        String homesList = String.join("<gray>, <white>", homeNames);
+        MessageUtil.send(player, "<green>Your homes: <white>" + homesList);
 
-        homeManager.setHome(player, homeName);
-        MessageUtil.send(player, "<green>Home '<white>" + homeName + "</white>' set successfully!");
         return true;
     }
 }
