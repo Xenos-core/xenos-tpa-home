@@ -1,31 +1,57 @@
 package org.xenos.teleportplugin.commands;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.xenos.teleportplugin.teleportplugin;
+import org.xenos.teleportplugin.managers.HomeManager;
+import org.xenos.teleportplugin.utils.MessageUtil;
 
-public class DelHomeCommand implements CommandExecutor {
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-    private final String prefix = "<i><b><gradient:#34213C:#C32ABF:#545eb6>🇽‌🇪‌🇳‌🇴‌🇸‌-🇨‌🇴‌🇷‌🇪‌ >> </gradient></b></i>";
+public class DelHomeCommand implements CommandExecutor, TabCompleter {
+
+    private final HomeManager homeManager;
+
+    public DelHomeCommand(HomeManager homeManager) {
+        this.homeManager = homeManager;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command.");
+            MessageUtil.send(sender, "<red>Only players can use this command.");
             return true;
         }
 
-        if (!teleportplugin.getInstance().getHomeManager().hasHome(player)) {
-            player.sendMessage(Component.text("You don’t have a home set.", NamedTextColor.RED));
+        if (args.length != 1) {
+            MessageUtil.send(player, "<red>Usage: /delhome <name>");
             return true;
         }
 
-        teleportplugin.getInstance().getHomeManager().deleteHome(player);
-        player.sendMessage(Component.text("Your home has been deleted.", NamedTextColor.GRAY));
+        String homeName = args[0];
+
+        if (!homeManager.hasHome(player, homeName)) {
+            MessageUtil.send(player, "<red>You don't have a home named '<white>" + homeName + "</white>'.");
+            return true;
+        }
+
+        homeManager.deleteHome(player, homeName);
+        MessageUtil.send(player, "<green>Successfully deleted home '<white>" + homeName + "</white>'.");
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1 && sender instanceof Player player) {
+            Set<String> homeNames = homeManager.getHomeNames(player);
+            return homeNames.stream()
+                    .filter(name -> name.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        return null; // Bukkit default
     }
 }

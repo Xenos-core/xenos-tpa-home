@@ -1,11 +1,12 @@
 package org.xenos.teleportplugin.managers;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
-import org.xenos.teleportplugin.teleportplugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.xenos.teleportplugin.TeleportPlugin;
+import org.xenos.teleportplugin.utils.MessageUtil;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
 
@@ -28,10 +29,22 @@ public class TeleportManager {
     private final Map<UUID, Set<UUID>> ignoredPlayers = new HashMap<>();
 
     private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private final Map<UUID, BukkitTask> warmupTasks = new HashMap<>();
+    private final Map<UUID, BukkitRunnable> warmupTasks = new HashMap<>();
 
-    private static final long COOLDOWN = 60 * 1000; // 60s
-    private static final long WARMUP_TICKS = 15 * 20; // 15s
+    private final TeleportPlugin plugin;
+    private long cooldown;
+    private long warmupTicks;
+
+    public TeleportManager(TeleportPlugin plugin) {
+        this.plugin = plugin;
+        loadConfig();
+    }
+
+    public void loadConfig() {
+        FileConfiguration config = plugin.getConfig();
+        cooldown = config.getLong("teleport.tpa.cooldown", 60) * 1000;
+        warmupTicks = config.getLong("teleport.tpa.warmup", 15) * 20;
+    }
 
     public void sendRequest(Player from, Player to) {
         pendingRequests.put(to.getUniqueId(), new TpaRequest(from, to));
@@ -66,54 +79,66 @@ public class TeleportManager {
 
     public boolean isInCooldown(Player player) {
         return cooldowns.containsKey(player.getUniqueId()) &&
-                System.currentTimeMillis() - cooldowns.get(player.getUniqueId()) < COOLDOWN;
+                System.currentTimeMillis() - cooldowns.get(player.getUniqueId()) < cooldown;
     }
 
     public long getCooldownLeft(Player player) {
-        return Math.max(0, (cooldowns.getOrDefault(player.getUniqueId(), 0L) + COOLDOWN - System.currentTimeMillis()) / 1000);
+        return Math.max(0, (cooldowns.getOrDefault(player.getUniqueId(), 0L) + cooldown - System.currentTimeMillis()) / 1000);
     }
 
     public void startTpaWarmup(Player from, Player to) {
         UUID uuid = from.getUniqueId();
+        MessageUtil.send(from, plugin.getConfig().getString("messages.home-teleport-start", "<yellow>Teleporting in {time} seconds. Don't move or take damage!").replace("{time}", String.valueOf(warmupTicks / 20)));
 
-        from.sendMessage("§e⏳ Teleporting in 15 seconds... Don’t move or take damage!");
-        warmupTasks.put(uuid, Bukkit.getScheduler().runTaskTimer(teleportplugin.getInstance(), new Runnable() {
-            int counter = 0;
-
+        BukkitRunnable task = new BukkitRunnable() {
+            int ticks = 0;
             @Override
             public void run() {
-                if (!from.isOnline() || !warmupTasks.containsKey(uuid)) {
+                if (!from.isOnline()) {
                     cancelTpaWarmup(from);
+                    cancel();
                     return;
                 }
 
+                // Particle effect
                 Location loc = from.getLocation().add(0, 1, 0);
                 from.getWorld().spawnParticle(Particle.PORTAL, loc, 30, 0.5, 0.5, 0.5, 0.05);
 
-                counter++;
-                if (counter >= WARMUP_TICKS / 20) {
+                ticks++;
+                if (ticks >= warmupTicks) {
                     if (from.isOnline()) {
                         from.teleport(to);
-                        from.sendMessage("§a✅ Teleport successful!");
+                        MessageUtil.send(from, plugin.getConfig().getString("messages.teleport-success", "<green>Teleport successful!"));
                         from.getWorld().spawnParticle(Particle.END_ROD, to.getLocation(), 60, 1, 1, 1, 0.1);
                         cooldowns.put(uuid, System.currentTimeMillis());
                     }
                     cancelTpaWarmup(from);
+                    cancel();
                 }
             }
-        }, 0L, 20L)); // runs every second
+        };
+
+        warmupTasks.put(uuid, task);
+        task.runTaskTimer(plugin, 0L, 1L);
     }
 
     public void cancelTpaWarmup(Player from) {
         UUID uuid = from.getUniqueId();
-        BukkitTask task = warmupTasks.remove(uuid);
+        BukkitRunnable task = warmupTasks.remove(uuid);
         if (task != null) {
             task.cancel();
-            from.sendMessage("§c❌ Teleport canceled.");
+            MessageUtil.send(from, plugin.getConfig().getString("messages.home-teleport-cancel", "<red>Teleport canceled."));
         }
     }
 
     public boolean isInWarmup(Player player) {
         return warmupTasks.containsKey(player.getUniqueId());
+    }
+
+    public void cancelAllWarmups() {
+        for (BukkitRunnable task : warmupTasks.values()) {
+            task.cancel();
+        }
+        warmupTasks.clear();
     }
 }

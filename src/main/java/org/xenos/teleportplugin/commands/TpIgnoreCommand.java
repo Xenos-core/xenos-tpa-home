@@ -5,39 +5,43 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.xenos.teleportplugin.teleportplugin;
 import org.xenos.teleportplugin.managers.TeleportManager;
 import org.xenos.teleportplugin.utils.MessageUtil;
 
 public class TpIgnoreCommand implements CommandExecutor {
 
+    private final TeleportManager teleportManager;
+
+    public TpIgnoreCommand(TeleportManager teleportManager) {
+        this.teleportManager = teleportManager;
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player target)) {
-            sender.sendMessage("Oɴʟу ᴘʟᴀуᴇʀꜱ ᴄᴀɴ ᴜꜱᴇ ᴛʜɪꜱ ᴄᴏᴍᴍᴀɴᴅ.");
+        if (!(sender instanceof Player player)) {
+            MessageUtil.send(sender, "<red>Only players can use this command.");
             return true;
         }
 
         if (args.length != 1) {
-            MessageUtil.send(target, "<yellow>Uꜱᴀɢᴇ: <gray>/tpignore <player>");
+            MessageUtil.send(player, "<red>Usage: /tpignore <player>");
             return true;
         }
 
         Player ignored = Bukkit.getPlayerExact(args[0]);
         if (ignored == null || !ignored.isOnline()) {
-            MessageUtil.send(target, "<red>🚫 Pʟᴀуᴇʀ ɴᴏᴛ ғᴏᴜɴᴅ ᴏʀ ᴏғғʟɪɴᴇ.");
+            MessageUtil.send(player, "<red>Player not found or is offline.");
             return true;
         }
 
-        if (ignored.equals(target)) {
-            MessageUtil.send(target, "<red>❌ Yᴏᴜ ᴄᴀɴ'ᴛ ɪɢɴᴏʀᴇ уᴏᴜʀꜱᴇʟғ.");
+        if (ignored.equals(player)) {
+            MessageUtil.send(player, "<red>You can't ignore yourself.");
             return true;
         }
 
-        TeleportManager manager = teleportplugin.getInstance().getTeleportManager();
-        manager.ignorePlayer(target, ignored);
+        teleportManager.ignorePlayer(player, ignored);
 
-        MessageUtil.send(target, "<gray>Yᴏᴜ ᴀʀᴇ ɴᴏᴡ ɪɢɴᴏʀɪɴɢ <red><bold>" + ignored.getName() + "</bold></red>. Tʜᴇу ᴄᴀɴ'ᴛ ꜱᴇɴᴅ уᴏᴜ ᴛᴇʟᴇᴘᴏʀᴛ ʀᴇǫᴜᴇꜱᴛꜱ ᴀɴуᴍᴏʀᴇ.");
+        MessageUtil.send(player, "<green>You are now ignoring <white>" + ignored.getName() + "</white>.");
         return true;
     }
 }

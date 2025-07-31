@@ -6,7 +6,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.xenos.teleportplugin.teleportplugin;
+import org.xenos.teleportplugin.TeleportPlugin;
+import org.xenos.teleportplugin.utils.MessageUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,11 +21,14 @@ public class HomeManager {
     private final Set<UUID> warmupQueue = new HashSet<>();
     private final Map<UUID, BukkitRunnable> warmupTasks = new HashMap<>();
 
-    private final long COOLDOWN = 220 * 1000;
-    private final long WARMUP = 30 * 20; // ticks
+    private final TeleportPlugin plugin;
+    private long cooldown;
+    private long warmupTicks;
 
-    public HomeManager() {
-        file = new File(teleportplugin.getInstance().getDataFolder(), "homes.yml");
+    public HomeManager(TeleportPlugin plugin) {
+        this.plugin = plugin;
+        loadConfig();
+        file = new File(plugin.getDataFolder(), "homes.yml");
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();
@@ -36,10 +40,10 @@ public class HomeManager {
         config = YamlConfiguration.loadConfiguration(file);
     }
 
-    public void setHome(Player player) {
+    public void setHome(Player player, String name) {
         Location loc = player.getLocation();
         UUID uuid = player.getUniqueId();
-        String path = "homes." + uuid;
+        String path = "homes." + uuid + "." + name.toLowerCase();
 
         config.set(path + ".world", loc.getWorld().getName());
         config.set(path + ".x", loc.getX());
@@ -51,18 +55,18 @@ public class HomeManager {
         save();
     }
 
-    public void deleteHome(Player player) {
+    public void deleteHome(Player player, String name) {
         UUID uuid = player.getUniqueId();
-        String path = "homes." + uuid;
+        String path = "homes." + uuid + "." + name.toLowerCase();
         if (config.contains(path)) {
             config.set(path, null);
             save();
         }
     }
 
-    public Location getHome(Player player) {
+    public Location getHome(Player player, String name) {
         UUID uuid = player.getUniqueId();
-        String path = "homes." + uuid;
+        String path = "homes." + uuid + "." + name.toLowerCase();
         if (!config.contains(path)) return null;
 
         World world = Bukkit.getWorld(config.getString(path + ".world"));
@@ -77,18 +81,33 @@ public class HomeManager {
         return new Location(world, x, y, z, yaw, pitch);
     }
 
-    public boolean hasHome(Player player) {
-        return config.contains("homes." + player.getUniqueId());
+    public boolean hasHome(Player player, String name) {
+        return config.contains("homes." + player.getUniqueId() + "." + name.toLowerCase());
+    }
+
+    public Set<String> getHomeNames(Player player) {
+        UUID uuid = player.getUniqueId();
+        String path = "homes." + uuid;
+        if (config.getConfigurationSection(path) == null) {
+            return Collections.emptySet();
+        }
+        return config.getConfigurationSection(path).getKeys(false);
+    }
+
+    public void loadConfig() {
+        FileConfiguration config = plugin.getConfig();
+        cooldown = config.getLong("teleport.home.cooldown", 220) * 1000;
+        warmupTicks = config.getLong("teleport.home.warmup", 30) * 20;
     }
 
     public boolean isInCooldown(Player player) {
         UUID uuid = player.getUniqueId();
-        return cooldowns.containsKey(uuid) && (System.currentTimeMillis() - cooldowns.get(uuid)) < COOLDOWN;
+        return cooldowns.containsKey(uuid) && (System.currentTimeMillis() - cooldowns.get(uuid)) < cooldown;
     }
 
     public long getCooldownLeft(Player player) {
         UUID uuid = player.getUniqueId();
-        long end = cooldowns.getOrDefault(uuid, 0L) + COOLDOWN;
+        long end = cooldowns.getOrDefault(uuid, 0L) + cooldown;
         return Math.max(0, (end - System.currentTimeMillis()) / 1000);
     }
 
@@ -100,12 +119,12 @@ public class HomeManager {
         UUID uuid = player.getUniqueId();
 
         if (isInWarmup(player)) {
-            player.sendMessage("§c⛔ You are already teleporting!");
+            MessageUtil.send(player, "<red>You are already teleporting!");
             return;
         }
 
         warmupQueue.add(uuid);
-        player.sendMessage("§e⏳ Teleporting to home in 30 seconds. Don't move or take damage!");
+        MessageUtil.send(player, plugin.getConfig().getString("messages.home-teleport-start", "<yellow>Teleporting in {time} seconds. Don't move or take damage!").replace("{time}", String.valueOf(warmupTicks / 20)));
 
         BukkitRunnable task = new BukkitRunnable() {
             int ticks = 0;
@@ -128,7 +147,7 @@ public class HomeManager {
                 }
 
                 ticks++;
-                if (ticks >= WARMUP) {
+                if (ticks >= warmupTicks) {
                     teleportPlayer(player, home);
                     cancelWarmup(player);
                     cancel();
@@ -137,12 +156,12 @@ public class HomeManager {
         };
 
         warmupTasks.put(uuid, task);
-        task.runTaskTimer(teleportplugin.getInstance(), 0L, 1L);
+        task.runTaskTimer(plugin, 0L, 1L);
     }
 
     private void teleportPlayer(Player player, Location home) {
         player.teleport(home);
-        player.sendMessage("§a✅ You have been teleported to your home!");
+        MessageUtil.send(player, "<green>You have been teleported to your home!");
         cooldowns.put(player.getUniqueId(), System.currentTimeMillis());
 
         // افکت هنگام رسیدن
@@ -155,8 +174,12 @@ public class HomeManager {
         warmupQueue.remove(uuid);
 
         BukkitRunnable task = warmupTasks.remove(uuid);
-        if (task != null) task.cancel();
-        player.sendMessage("§c❌ Teleport canceled.");
+        if (task != null) {
+            if (!task.isCancelled()) {
+                task.cancel();
+            }
+            MessageUtil.send(player, "<red>Teleport canceled.");
+        }
     }
 
     private void save() {
@@ -165,5 +188,13 @@ public class HomeManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void cancelAllWarmups() {
+        for (BukkitRunnable task : warmupTasks.values()) {
+            task.cancel();
+        }
+        warmupTasks.clear();
+        warmupQueue.clear();
     }
 }
