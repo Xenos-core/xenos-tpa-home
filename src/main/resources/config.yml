@@ -1,0 +1,76 @@
+# Xenos-Tpa-Home Configuration
+
+# Settings for teleportation cooldowns and warmups (all values are in seconds)
+teleport:
+  tpa:
+    warmup: 15
+    cooldown: 60
+  home:
+    warmup: 30
+    cooldown: 220
+
+# All messages sent by the plugin. They support MiniMessage formatting.
+# You can find MiniMessage documentation here: https://docs.advntr.dev/minimessage/format.html
+messages:
+  prefix: "<i><b><gradient:#34213C:#C32ABF:#545eb6>🇽‌🇪‌🇳‌🇴‌🇸‌-🇨‌🇴‌🇷‌🇪‌ >></gradient></b></i> "
+
+  # Generic messages
+  only-players: "<red>Only players can use this command."
+  player-not-found: "<red>Player not found or is offline."
+  teleport-cancelled-damage: "<red>Teleportation canceled because you took damage!"
+  already-teleporting: "<red>You are already teleporting!"
+
+  # TPA messages
+  tpa-usage: "<red>Usage: /tpa <player>"
+  tpa-cant-teleport-to-self: "<red>You can't teleport to yourself!"
+  tpa-target-requests-disabled: "<yellow>This player has disabled teleport requests."
+  tpa-target-ignoring-you: "<yellow>This player is ignoring you."
+  tpa-request-sent: "<green>Request sent to <white>{target}</white>!"
+  tpa-request-received: "<gold><bold>{sender}</bold> wants to teleport to you. Use <green>/tpaccept</green> to accept."
+
+  # TP Accept messages
+  tpaccept-no-request: "<red>You have no pending teleport requests."
+  tpaccept-player-offline: "<yellow>That player is no longer online."
+  tpaccept-cooldown: "<yellow>You must wait {time} seconds before teleporting again."
+  tpaccept-target-cooldown: "<yellow>Player {target} is on cooldown."
+  tpaccept-success-sender: "<green>You accepted {target}'s teleport request."
+
+  # TP Deny messages
+  tpdeny-no-request: "<red>You have no pending teleport request to deny."
+  tpdeny-request-denied-sender: "<red>{target} denied your teleport request."
+  tpdeny-success: "<green>You denied the teleport request."
+
+  # TP Toggle messages
+  tptoggle-enabled: "<green>You are now <white>accepting</white> teleport requests."
+  tptoggle-disabled: "<red>You are now <white>ignoring</white> all teleport requests."
+
+  # TP Ignore messages
+  tpignore-usage: "<red>Usage: /tpignore <player>"
+  tpignore-cant-ignore-self: "<red>You can't ignore yourself."
+  tpignore-success: "<green>You are now ignoring <white>{target}</white>."
+
+  # Home messages
+  home-usage: "<red>Usage: /home <name>"
+  home-not-found: "<red>You don't have a home named '<white>{name}</white>'."
+  home-cooldown: "<yellow>You must wait {time} seconds before using this command again."
+  home-world-invalid: "<red>Could not find the location for home '<white>{name}</white>'. It may be in an unloaded world."
+  home-teleport-start: "<yellow>Teleporting in {time} seconds. Don't move or take damage!"
+  home-teleport-success: "<green>You have been teleported to your home!"
+  home-teleport-cancel: "<red>Teleport canceled."
+
+  # Set Home messages
+  sethome-usage: "<red>Usage: /sethome <name>"
+  sethome-invalid-name: "<red>Home name must be 3-16 characters long and can only contain letters, numbers, underscore, and dash."
+  sethome-success: "<green>Home '<white>{name}</white>' set successfully!"
+
+  # Del Home messages
+  delhome-usage: "<red>Usage: /delhome <name>"
+  delhome-success: "<green>Successfully deleted home '<white>{name}</white>'."
+
+  # Homes messages
+  homes-list-empty: "<yellow>You have no homes set. Use /sethome <name> to set one."
+  homes-list-header: "<green>Your homes: <white>"
+  homes-list-separator: "<gray>, <white>"
+
+  # Final Teleportation Messages
+  teleport-success: "<green>Teleport successful!"

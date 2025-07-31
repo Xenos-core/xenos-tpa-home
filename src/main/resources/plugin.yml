@@ -1,6 +1,6 @@
 name: Xenos-Tpa
 version: '1.0-SNAPSHOT'
-main: org.xenos.teleportplugin.teleportplugin
+main: org.xenos.teleportplugin.TeleportPlugin
 api-version: '1.21'
 prefix: Xenos-Core
 load: STARTUP
@@ -10,6 +10,8 @@ website: https://mrsourse.ir/
 commands:
   delhome:
     description: Delete your home
+  homes:
+    description: List your available homes
   sethome:
     description: Set your home location
     usage: /sethome name
@@ -31,3 +33,6 @@ commands:
   tpignore:
     description: نادیده گرفتن بازیکن خاص
     usage: /tpignore <player>
+  xenosreload:
+    description: Reloads the plugin's configuration.
+    permission: xenos.reload
